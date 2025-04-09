@@ -4,6 +4,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const fs=require('fs');
+const uploadsDir=path.join(__dirname,'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('✅ Created uploads directory');
+}
+const adoptionRoutes = require('./routes/adoptionRoutes');
 
 const app = express();
 
@@ -36,6 +43,7 @@ console.log("✅ Routes loaded, applying to app...");
 app.use('/api/strays', strayRoutes);
 app.use('/api', authRoutes);
 app.use('/api/pets', petRoutes); 
+app.use('/api/adoptions', adoptionRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is working!' });

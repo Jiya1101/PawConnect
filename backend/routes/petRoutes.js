@@ -77,6 +77,10 @@ router.get('/pending', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
   const { status, requestMessage } = req.body;
 
+  if (!['approved', 'rejected', 'pending', 'moreInfo'].includes(status)) {
+    return res.status(400).json({ error: 'Invalid status value' });
+  }
+
   try {
     const updatedPet = await Pet.findByIdAndUpdate(
       req.params.id,
@@ -101,15 +105,27 @@ router.patch('/:id/status', async (req, res) => {
 router.put('/approve/:id', async (req, res) => {
   try {
     const petId = req.params.id;
-    const updatedPet = await Pet.findByIdAndUpdate(
-      petId,
-      { status: 'approved' },
-      { new: true }
-    );
-    res.json(updatedPet);
+    const updatedPet = await Pet.findByIdAndUpdate(petId, { approved: true });
+
+    if (!updatedPet) {
+      return res.status(404).json({ message: 'Pet not found' });
+    }
+
+    res.status(200).json({ message: 'Pet approved successfully' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Failed to approve pet");
+    console.error("❌ Error in approval route:", err);
+    res.status(500).json({ message: 'Server error while approving' });
+  }
+});
+router.get('/approved', async (req, res) => {
+  try {
+    const approvedPets = await Pet.find({ status: "approved" })
+      .select('-status -__v -createdAt -updatedAt -requestMessage');
+    
+    res.json(approvedPets);
+  } catch (err) {
+    console.error('❌ Error fetching approved pets:', err.message);
+    res.status(500).json({ error: 'Failed to fetch approved pets' });
   }
 });
 

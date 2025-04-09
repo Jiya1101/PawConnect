@@ -186,7 +186,7 @@ nav ul li a:hover {
 /* Report Stray Section */
 .stray {
   padding: 4rem 2rem;
-  background-color: #ffffff;
+  background-color: #f4f4f4;
   text-align: center;
 }
 
@@ -218,7 +218,7 @@ nav ul li a:hover {
 /* Contact Section */
 .contact {
   padding: 4rem 2rem;
-  background-color: #f4f4f4;
+  background-color: #ffff;
   text-align: center;
 }
 
