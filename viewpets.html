@@ -452,94 +452,115 @@
             <a href="#"><img src="Images/twitter.png" alt="Twitter"></a>
         </div>
     </footer>
-
     <script>
-        // Get the modal and buttons
-const modal = document.getElementById("adopt-modal");
-const adoptButtons = document.querySelectorAll(".adopt-btn");
-const closeModal = document.querySelector(".close");
-
-// Function to open the modal
-function openModal(petName, petBreed, petAge, petLocation) {
-    document.getElementById("modal-pet-name").textContent = petName;
-    document.getElementById("modal-pet-breed").textContent = petBreed;
-    document.getElementById("modal-pet-age").textContent = petAge;
-    document.getElementById("modal-pet-location").textContent = petLocation;
-    modal.style.display = "flex";
-    
-    // Reset form when opening modal
-    document.getElementById("adoption-form").reset();
-}
-
-// Function to close the modal
-function closeModalHandler() {
-    modal.style.display = "none";
-}
-
-// Add event listeners to all "Adopt Me" buttons
-adoptButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-        const petCard = button.closest(".pet-card");
-        const petName = petCard.querySelector("h3").textContent;
-        const petBreed = petCard.querySelector("p").textContent.replace("Breed: ", "");
-        const petAge = petCard.querySelectorAll("p")[1].textContent;
-        const petLocation = petCard.querySelector("p strong").nextSibling.textContent.trim();
-        openModal(petName, petBreed, petAge, petLocation);
-    });
-});
-
-// Close modal when clicking the close button
-closeModal.addEventListener("click", closeModalHandler);
-
-// Close modal when clicking outside the modal
-window.addEventListener("click", (event) => {
-    if (event.target === modal) {
-        closeModalHandler();
-    }
-});
-
-// Handle form submission
-document.getElementById("adoption-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    
-    // Collect all form data
-    const formData = {
-        petName: document.getElementById("modal-pet-name").textContent,
-        petBreed: document.getElementById("modal-pet-breed").textContent,
-        petAge: document.getElementById("modal-pet-age").textContent,
-        petLocation: document.getElementById("modal-pet-location").textContent,
-        fullName: document.getElementById("fullName").value,
-        email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        occupation: document.getElementById("occupation").value,
-        houseType: document.getElementById("houseType").value,
-        ownership: document.getElementById("ownership").value,
-        reason: document.getElementById("reason").value,
-        experience: document.getElementById("experience").value,
-        currentPets: document.getElementById("currentPets").value,
-        hoursAlone: document.getElementById("hoursAlone").value,
-        agreedToTerms: document.querySelector("input[name='terms']").checked
-    };
-    
-    // Validate hoursAlone is within range
-    if (formData.hoursAlone < 0 || formData.hoursAlone > 24) {
-        alert("Please enter a valid number of hours (0-24) for how long the pet will be alone.");
-        return;
-    }
-    
-    // Here you would typically send this data to your server
-    console.log("Adoption application submitted:", formData);
-    
-    // Show success message
-    alert(`Thank you, ${formData.fullName}! Your adoption application for ${formData.petName} has been submitted successfully. We'll contact you soon.`);
-    
-    // Close the modal
-    closeModalHandler();
-    
-    // Reset the form
-    event.target.reset();
-});
-    </script>
+        // -------------------- Modal Logic --------------------
+        const modal = document.getElementById("adopt-modal");
+        const adoptButtons = document.querySelectorAll(".adopt-btn");
+        const closeModal = document.querySelector(".close");
+        
+        // Function to open the modal
+        function openModal(petName, petBreed, petAge, petLocation) {
+            document.getElementById("modal-pet-name").textContent = petName;
+            document.getElementById("modal-pet-breed").textContent = petBreed;
+            document.getElementById("modal-pet-age").textContent = petAge;
+            document.getElementById("modal-pet-location").textContent = petLocation;
+            modal.style.display = "flex";
+        
+            // Reset form when opening modal
+            document.getElementById("adoption-form").reset();
+        }
+        
+        // Function to close the modal
+        function closeModalHandler() {
+            modal.style.display = "none";
+        }
+        
+        // Add event listeners to all "Adopt Me" buttons
+        adoptButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const petCard = button.closest(".pet-card");
+                const petName = petCard.querySelector("h3").textContent;
+                const petBreed = petCard.querySelector("p").textContent.replace("Breed: ", "");
+                const petAge = petCard.querySelectorAll("p")[1].textContent;
+                const petLocation = petCard.querySelector("p strong").nextSibling.textContent.trim();
+                openModal(petName, petBreed, petAge, petLocation);
+            });
+        });
+        
+        // Close modal when clicking the close button
+        closeModal.addEventListener("click", closeModalHandler);
+        
+        // Close modal when clicking outside the modal
+        window.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                closeModalHandler();
+            }
+        });
+        
+        // -------------------- Form Submission --------------------
+        document.getElementById("adoption-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+        
+            const formData = {
+                petName: document.getElementById("modal-pet-name").textContent,
+                petBreed: document.getElementById("modal-pet-breed").textContent,
+                petAge: document.getElementById("modal-pet-age").textContent,
+                petLocation: document.getElementById("modal-pet-location").textContent,
+                fullName: document.getElementById("fullName").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                address: document.getElementById("address").value,
+                occupation: document.getElementById("occupation").value,
+                houseType: document.getElementById("houseType").value,
+                ownership: document.getElementById("ownership").value,
+                reason: document.getElementById("reason").value,
+                experience: document.getElementById("experience").value,
+                currentPets: document.getElementById("currentPets").value,
+                hoursAlone: document.getElementById("hoursAlone").value,
+                agreedToTerms: document.querySelector("input[name='terms']").checked
+            };
+        
+            if (formData.hoursAlone < 0 || formData.hoursAlone > 24) {
+                alert("Please enter a valid number of hours (0-24) for how long the pet will be alone.");
+                return;
+            }
+        
+            console.log("Adoption application submitted:", formData);
+        
+            alert(`Thank you, ${formData.fullName}! Your adoption application for ${formData.petName} has been submitted successfully. We'll contact you soon.`);
+        
+            closeModalHandler();
+            event.target.reset();
+        });
+        
+        // -------------------- Filtering Logic --------------------
+        const speciesFilter = document.getElementById('species-filter');
+        const breedFilter = document.getElementById('breed-filter');
+        const locationFilter = document.getElementById('location-filter');
+        const petCards = document.querySelectorAll('.pet-card');
+        
+        function filterPets() {
+            const speciesValue = speciesFilter.value.toLowerCase();
+            const breedValue = breedFilter.value.toLowerCase();
+            const locationValue = locationFilter.value.toLowerCase();
+        
+            petCards.forEach(card => {
+                const speciesText = card.querySelector('p:nth-of-type(2)').textContent.toLowerCase();
+                const breedText = card.querySelector('p:nth-of-type(1)').textContent.toLowerCase();
+                const locationText = card.querySelector('p:nth-of-type(3)').textContent.toLowerCase();
+        
+                const matchesSpecies = speciesValue === '' || speciesText.includes(speciesValue);
+                const matchesBreed = breedValue === '' || breedText.includes(breedValue);
+                const matchesLocation = locationValue === '' || locationText.includes(locationValue);
+        
+                card.style.display = (matchesSpecies && matchesBreed && matchesLocation) ? 'block' : 'none';
+            });
+        }
+        
+        speciesFilter.addEventListener('change', filterPets);
+        breedFilter.addEventListener('change', filterPets);
+        locationFilter.addEventListener('change', filterPets);
+        </script>
+        
 </body>
 </html>

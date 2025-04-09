@@ -195,8 +195,8 @@
     <div class="divider"></div>
     <p>Fill out the form below to list a pet for adoption. Make sure to provide accurate and detailed information.</p>
   </section>
+  <form class="pet-form" id="petForm" enctype="multipart/form-data">
 
-  <form class="pet-form" action="http://localhost:5000/api/pets/list-pet" method="POST" enctype="multipart/form-data">
 
     <label for="pet-name">Pet Name:</label>
     <input type="text" id="pet-name" name="name" required />
@@ -226,7 +226,8 @@
     <input type="email" id="contact-email" name="contactEmail" required />
   
     <label for="pet-image">Upload Image:</label>
-    <input type="file" id="pet-image" name="petImage" accept="image/*" required />
+    <input type="file" id="pet-image" name="image" accept="image/*" required />
+
   
     <button type="submit">Submit Listing</button>
   </form>
@@ -235,14 +236,34 @@
   <footer>
     &copy; 2025 Pet Adoption Center
   </footer>
-
   <script>
-    document.querySelector(".pet-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      alert("Pet listing submitted successfully!");
-      // Add actual form submission logic here (e.g., backend call)
+    document.getElementById("petForm").addEventListener("submit", async function (e) {
+      e.preventDefault(); // prevent reload
+  
+      const form = e.target;
+      const formData = new FormData(form);
+  
+      try {
+        const response = await fetch("http://localhost:5000/api/pets", {
+          method: "POST",
+          body: formData
+        });
+  
+        if (response.ok) {
+          alert("Pet listed successfully!");
+          form.reset(); // clear form
+        } else {
+          const errorData = await response.json();
+          alert("❌ Failed to submit: " + errorData.error);
+        }
+      } catch (err) {
+        console.error("Submission error:", err);
+        alert("❌ Something went wrong. Try again!");
+      }
     });
   </script>
+  
+
 
 </body>
 </html>

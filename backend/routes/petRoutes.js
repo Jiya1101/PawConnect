@@ -1,44 +1,116 @@
 const express = require('express');
 const router = express.Router();
-const Pet = require('../models/Pet');
 const multer = require('multer');
+const Pet = require('../models/Pet');
 const path = require('path');
 
-// Setup multer for image uploads
+// Multer setup
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, '../uploads'));
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
 });
-
 const upload = multer({ storage: storage });
 
-router.post('/list-pet', upload.single('petImage'), async (req, res) => {
-  try {
-    console.log("Received form data:", req.body);
-    console.log("Received file:", req.file);
+// @route   GET /api/pets
+router.get('/', (req, res) => {
+  res.send('🐾 Pet route is working!');
+});
 
-    const pet = new Pet({
-      name: req.body.name,
-      breed: req.body.breed,
-      age: req.body.age,
-      type: req.body.type,
-      location: req.body.location,
-      description: req.body.description,
-      contactEmail: req.body.contactEmail,
-      image: req.file ? req.file.filename : ''
+// @route   POST /api/pets
+// @desc    Add new pet
+router.post('/', upload.single('image'), async (req, res) => {
+  console.log('🚀 Incoming pet data:', req.body);
+
+  const { name, breed, age, type, location, description, contactEmail } = req.body;
+  const image = req.file ? req.file.filename : null;
+
+  try {
+    const newPet = new Pet({
+      name,
+      breed,
+      age,
+      type,
+      location,
+      description,
+      contactEmail,
+      image,
+      status: 'pending'
     });
 
-    await pet.save();
-    res.status(201).json({ message: 'Pet listed successfully' });
+    const savedPet = await newPet.save();
+    console.log('✅ Pet saved:', savedPet);
+    res.status(201).json(savedPet);
   } catch (err) {
-    console.error('Error while saving pet:', err);
-    res.status(500).json({ error: 'Failed to list pet' });
+    console.error('❌ Error saving pet:', err.message);
+    res.status(500).json({ error: 'Failed to save pet' });
   }
 });
 
+// GET all pet listings
+router.get('/all', async (req, res) => {
+  try {
+    const pets = await Pet.find({});
+    res.json(pets);
+  } catch (err) {
+    console.error('❌ Error fetching pets:', err.message);
+    res.status(500).json({ error: 'Failed to fetch pets' });
+  }
+});
+
+// GET all pending pets
+router.get('/pending', async (req, res) => {
+  try {
+    const pendingPets = await Pet.find({ status: "pending" });
+    res.json(pendingPets);
+  } catch (err) {
+    console.error('❌ Error fetching pending pets:', err.message);
+    res.status(500).json({ error: 'Failed to fetch pending pets' });
+  }
+});
+
+// PATCH /api/pets/:id/status
+// Update status (approved, rejected, moreInfo) + optional request message
+router.patch('/:id/status', async (req, res) => {
+  const { status, requestMessage } = req.body;
+
+  try {
+    const updatedPet = await Pet.findByIdAndUpdate(
+      req.params.id,
+      {
+        status,
+        requestMessage: requestMessage || ''
+      },
+      { new: true }
+    );
+
+    if (!updatedPet) {
+      return res.status(404).json({ error: 'Pet not found' });
+    }
+
+    res.json(updatedPet);
+  } catch (err) {
+    console.error('❌ Error updating pet status:', err.message);
+    res.status(500).json({ error: 'Failed to update pet status' });
+  }
+});
+
+router.put('/approve/:id', async (req, res) => {
+  try {
+    const petId = req.params.id;
+    const updatedPet = await Pet.findByIdAndUpdate(
+      petId,
+      { status: 'approved' },
+      { new: true }
+    );
+    res.json(updatedPet);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to approve pet");
+  }
+});
 
 module.exports = router;
